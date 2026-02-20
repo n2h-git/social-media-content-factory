@@ -2,6 +2,8 @@
 
 An AI-powered n8n workflow that generates, reviews, and publishes social media content across multiple platforms from a single topic input. Supports both scheduled (cron + RSS) and manual (form) content creation with human-in-the-loop approval via email.
 
+> **Based on** [✨🤖Automate Multi-Platform Social Media Content Creation with AI](https://n8n.io/workflows/3066-automate-multi-platform-social-media-content-creation-with-ai/) by [Joseph LePage](https://n8n.io/creators/joe/). This fork adds security hardening, RSS ingestion, input/output sanitization, image generation via Google Gemini, and Microsoft Outlook approval flow.
+
 ## Architecture
 
 ```
@@ -183,6 +185,20 @@ Edit **Send message and wait for response** → Options → Limit Wait Time (def
 
 ### Change Cron Schedule
 Edit the **Cron** node trigger times (default: daily at 7:00 AM).
+
+## Credits
+
+This workflow is a fork of [✨🤖Automate Multi-Platform Social Media Content Creation with AI](https://n8n.io/workflows/3066-automate-multi-platform-social-media-content-creation-with-ai/) by **Joseph LePage** ([@joe on n8n](https://n8n.io/creators/joe/)). The original template provides the core multi-platform content generation and publishing architecture.
+
+**What this fork adds:**
+- Cron + RSS feed ingestion (scheduled content from any feed)
+- RSS input sanitization (XSS protection before LLM processing)
+- LLM output sanitization (XSS protection in approval emails)
+- Google Gemini image generation (replacing Pollinations.ai/DALL-E)
+- Microsoft Outlook approval flow (replacing Gmail)
+- imgbb API key moved to n8n Credential Manager
+- All hardcoded secrets, platform IDs, and PII scrubbed for public sharing
+- Content categorization system with structured output schema
 
 ## License
 
