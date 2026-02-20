@@ -1,0 +1,2062 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# 🤖 Cron Input for Social Media Posts \n### 💡 Publish the workflow to get started",
+        "height": 360,
+        "width": 712,
+        "color": 4
+      },
+      "id": "c84b40f0-6184-405c-8a50-5bd9407fd190",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        336
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# 🛠️ Social Media Content Factory\n## Enter a prompt that fits your style or business needs\n- LinkedIn\n- Instagram\n- Facebook\n- X\n- TikTok\n- Threads\n- YouTube Shorts\n",
+        "height": 600,
+        "width": 640,
+        "color": 6
+      },
+      "id": "71325cda-ece2-4cf0-b808-73d7b35007b4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# 👍 Approve Content Before Proceeding",
+        "height": 360,
+        "width": 688,
+        "color": 4
+      },
+      "id": "e6b697a2-a616-438c-8877-fb97bdd3ebf6",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1168,
+        848
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## ✉️ Prepare & Format Approval Email\n## Enter a prompt for the LLM to create your email for approval.\n\n## Generate clean, modern HTML email content from the provided JSON data with these requirements:\n- Use table-based layout with inline CSS for email compatibility\n- Create card sections for each platform containing:\n  • Title header (20px) \n  • Post content (16px) \n  • Video/image suggestions (italic 14px)\n  • Hashtag list (inline-block with # prefix)\n  • Emoji preservation where present\n  • Call-to-action (bold 14px)",
+        "height": 592,
+        "width": 500,
+        "color": 5
+      },
+      "id": "d50557d7-0bf4-4701-a53d-286593e9b1c1",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2048,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3-flash-preview",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "id": "f5dd0833-1ad7-4179-bc76-b68c1ce74453",
+      "name": "Google Gemini LLM",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        848,
+        560
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1pSr3dgAIqSfD4h7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "17841452764010741",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $('Social Media Content Factory').first().json.output.name\n  + ' ' + $('Social Media Content Factory').first().json.output.platform_posts.Instagram.caption }}\n"
+              }
+            ]
+          }
+        }
+      },
+      "id": "aa4d7d9b-f5dc-4c02-a91d-38bbd6209629",
+      "name": "Instragram Post",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        2000,
+        1200
+      ],
+      "typeVersion": 1,
+      "alwaysOutputData": false,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "hMOxqOKXBVi7laHE",
+          "name": "n8n 4 In Sta Account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Social Media Content Factory').first().json.output.platform_posts['X-Twitter'].post\n  + ' ' + $('Social Media Content Factory').first().json.output.platform_posts['X-Twitter'].hashtags.join(' ') }}\n\n",
+        "additionalFields": {
+          "attachments": "={{ $json.data.id }}"
+        }
+      },
+      "id": "b1bc9585-ea1c-44c5-af3b-f2d7242adc47",
+      "name": "X Post",
+      "type": "n8n-nodes-base.twitter",
+      "position": [
+        2000,
+        1376
+      ],
+      "typeVersion": 2,
+      "alwaysOutputData": false,
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "PxHTKEmJFCeJSnmT",
+          "name": "X account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "116724284700801",
+        "edge": "photos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $('Social Media Content Factory').item.json.output.platform_posts.Facebook.post }}\n"
+              },
+              {
+                "name": "link",
+                "value": "={{ $('Social Media Content Factory').item.json.output.platform_posts.Facebook.call_to_action }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "de48c65c-99bd-4f27-aa06-0625126522eb",
+      "name": "Facebook Post",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        2000,
+        1600
+      ],
+      "typeVersion": 1,
+      "alwaysOutputData": false,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "rngrHpORQ8sup1s7",
+          "name": "n8n Integration account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "postAs": "organization",
+        "organization": "80225575",
+        "text": "={{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.post }}",
+        "shareMediaCategory": "IMAGE",
+        "binaryPropertyName": "=data",
+        "additionalFields": {}
+      },
+      "id": "014cb279-2504-4214-9ea4-5d04ea2635e2",
+      "name": "LinkedIn Post",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [
+        2000,
+        1776
+      ],
+      "typeVersion": 1,
+      "alwaysOutputData": false,
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "QKKB0zJJ0Dj7xF9S",
+          "name": "LinkedIn account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "18e6a2c5-8630-4ee1-a633-9d2994eae89e",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -160,
+        1536
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "id": "83b84a83-cef7-4199-8ee3-16fe1168fdfe",
+      "name": "gpt-4o-mini2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        80,
+        1840
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "hggy4Z8R7Gc4EEfl",
+          "name": "OpenAi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Publish to Social Media",
+        "height": 1132,
+        "width": 300,
+        "color": 6
+      },
+      "id": "36fcc8a9-baa9-4042-9dd7-9fd924fe7ecb",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1904,
+        864
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Format Results",
+        "height": 880,
+        "width": 300,
+        "color": 5
+      },
+      "id": "3c7637cc-aac1-43af-973c-ddcf7a18cf76",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        1088
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Step 4️⃣: Send Final Results of Social Media Factory",
+        "height": 744,
+        "width": 1388,
+        "color": 7
+      },
+      "id": "65020b39-b060-4a95-9b6a-0064fdf62e72",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        1280
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "##         Create Post Image & Upload ",
+        "height": 244,
+        "width": 804,
+        "color": 3
+      },
+      "id": "5f4a751a-65f0-4e9e-b64b-4592fb9d7434",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        816
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Upload to X and Stage for FB & LinkedIn",
+        "height": 644,
+        "width": 524,
+        "color": 4
+      },
+      "id": "6b678960-1f7f-4af5-adcf-aabd1a5a07c6",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        1248
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5c6edc76-1e3b-45b0-8baa-33a14c678150",
+              "name": "Instagram Post Result",
+              "type": "string",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a2cf9618-d72b-4652-904e-45dbbf8fbce6",
+      "name": "Instagram Result",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2336,
+        1168
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5c6edc76-1e3b-45b0-8baa-33a14c678150",
+              "name": "X Post Result",
+              "type": "string",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d55b916b-d791-48cb-abf8-3c110ee814c5",
+      "name": "X Result",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2336,
+        1376
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5c6edc76-1e3b-45b0-8baa-33a14c678150",
+              "name": "Facebook Post Result",
+              "type": "string",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d405470d-a416-4208-af27-9a630ef50c40",
+      "name": "Facebook Result",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2336,
+        1600
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5c6edc76-1e3b-45b0-8baa-33a14c678150",
+              "name": "LinkedIn Post Result",
+              "type": "string",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "422488a9-043c-4866-a1d9-fb5c0759462b",
+      "name": "LinkedIn Result",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2336,
+        1776
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "content": "# Step 1️⃣: Create Social Media Content\n## Note:  You could use the output of manual  step 1 to create your written content and manually post if required.  ",
+        "height": 760,
+        "width": 2992,
+        "color": 7
+      },
+      "id": "15171ed9-958f-4ce6-8227-143b0ecf18d6",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Step 2️⃣: Create Image or Upload Image for Social Post",
+        "height": 508,
+        "width": 1388,
+        "color": 7
+      },
+      "id": "6d02f0a8-f292-442e-a336-06861561b217",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        752
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Step 3️⃣: Publish Final Social Media Posts",
+        "height": 1276,
+        "width": 1760,
+        "color": 7
+      },
+      "id": "de89ddb0-304b-4770-890c-17458be175ea",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1056,
+        752
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=Parse the social media post results and generate a brief summary of the results.\n\nThis is the social media post results: \n{{ $json.data.toJsonString() }}\n\n## Example Response:\nThe social media post results indicate multiple errors when attempting to access or post content on various platforms. \n\n1. Instagram: The response shows a 400 status code with an error message indicating that the specific post request is unsupported due to missing permissions or an invalid object ID. \n\n2. X Post: Success\n\n3. Facebook: Success \n\n4. LinkedIn: Also returned an 'Unable to sign without access token' error. \n\nOverall, access token issues and unsupported requests are frequent problems across these social media platforms.\n",
+        "options": {}
+      },
+      "id": "253e3aa4-b5d6-425a-8f32-e510abacbea4",
+      "name": "Prepare Results Message",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        96,
+        1680
+      ],
+      "typeVersion": 1.7,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "13ae4773-f257-4754-957c-2240bee1fc86",
+      "name": "Telegram Results",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        448,
+        1680
+      ],
+      "webhookId": "8d6cbe83-2aa3-44cb-899e-cebfb6ab0aeb",
+      "typeVersion": 1.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 636,
+        "width": 1292,
+        "color": 4
+      },
+      "id": "18d14307-2520-41dd-8917-fe265a27664b",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -336,
+        1360
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Alternative User Uploaded Image\n(optional)",
+        "height": 180,
+        "width": 796
+      },
+      "id": "85ed30d0-ff96-421f-a645-ed9d0dd8c850",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        1072
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "66415b09-7e29-4392-b843-28beff05a4ad",
+      "name": "SerpAPI",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "position": [
+        1152,
+        560
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "serpApi": {
+          "id": "ZS5U58Hv1Rf5rgzf",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 💡Notes\n\nAdjust the Social Media Content Factory prompts to suit your personal or business requirements.\n\nUpdate Credentials for:\n- OpenAI API Key\nhttps://auth.openai.com/log-in\n\n- Google Studio API\nhttps://aistudio.google.com/app/apikey\n\n- SERP API Key\nhttps://serpapi.com/\n\n- Gmail OAuth\nhttps://docs.n8n.io/integrations/builtin/credentials/google/\n\n- Telegram Bot (Optional)\nhttps://docs.n8n.io/integrations/builtin/credentials/telegram/\n\n- imgbb\nhttps://imgbb.com/",
+        "height": 596,
+        "width": 480
+      },
+      "id": "c6e28f51-4c9f-4176-ba01-aad991fe13eb",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1504,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "💡Notes\n\nUpdate all Social Media Platform Credentials as required.\n\nAdjust parameters and content for each platform to suit your needs.",
+        "height": 180,
+        "width": 300
+      },
+      "id": "8a2be4d7-fe6b-40a9-b5d3-e4aadcfd79ea",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        864
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "$input.first().binary.data = $input.first().binary.Upload_Image__optional_\ndelete $input.first().binary.Upload_Image__optional_\nreturn $input.first()"
+      },
+      "id": "7a7e4775-796a-4876-928f-c467903d25d9",
+      "name": "Rename Binary File",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        272,
+        1120
+      ],
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate clean, modern HTML email content from the provided JSON data with these requirements:\nLayout & Styling:\n\nTable-based layout with inline CSS for email client compatibility\n600px max-width container\n20px padding between cards\nLeft-aligned text hierarchy\nArial/sans-serif font stack\nEmail-safe colors: #333 text, #555 secondary, #FF8500 for ArkCybr brand accents\n\nTop Section — Image Generation Preview (NEW):\nBefore the platform cards, render a summary card with:\n\nHeader: \"Image Generation Brief\" in bold 20px, color #FF8500\nRow labeled \"BESURE Pillar:\" followed by the value of besure_pillar in bold, with a small colored badge:\n\nBackups → background #009EFF\nEncryption → background #003760\nSecurity → background #FF8500\nUpdates → background #D16800\nReduce Risk → background #492300\nEducate Yourself & Others → background #383A3D\nBadge text always white, border-radius 4px, padding 2px 8px, font-size 12px\n\n\nRow labeled \"DALL-E Prompt:\" followed by the full image_prompt text in italic 14px, background #f9f9f9, padding 12px, border-left 3px solid #FF8500\nRow labeled \"Topic Summary:\" followed by the description text in regular 14px\nThis card uses background #fff8f0 to visually distinguish it from platform cards\n\nPlatform Cards:\nCreate a card for each platform in this order: LinkedIn, Instagram, Facebook, X-Twitter, TikTok, Threads, YouTube_Shorts. Each card contains:\n\nPlatform name as header (bold 20px)\nPost/caption/text_post content (16px)\nVideo or image suggestion in italic 14px, prefixed with \"📷 Image:\" or \"🎬 Video:\" as appropriate\nHashtag list using the tag pill format below\nEmoji preservation in original positions within text\nCall-to-action in bold 14px\nFor X-Twitter: show character count as \"(X/280 chars)\" after the post text in color #555, font-size 12px\n\nHashtag format:\n<span style=\"display: inline-block; background: #f0f0f0; padding: 2px 6px; margin: 2px; border-radius: 4px; font-size: 13px;\">#tag</span>\nFooter Section:\nAfter all platform cards, add a small footer row:\n\nText: \"Generated by ArkCybr Social Media Content Factory\" in 12px, color #AEB3B7, centered\nBelow that: \"Review all content and image before approving.\" in 12px, color #6D7175, centered\n\nStructure rules:\n\nMobile-responsive tables\nW3C-valid markup\nPreserve all emojis in their original positions\nPlatform cards use background #f9f9f9\nImage Generation Brief card uses background #fff8f0\n\nRemove ALL code blocks, markdown formatting, and comments. Output ONLY raw HTML.\nInput data: {{ $json.output.toJsonString() }}",
+        "options": {}
+      },
+      "id": "85283154-04e2-407c-b1ec-af8740749aa8",
+      "name": "Prepare Content Review Email",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2272,
+        528
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiration",
+              "value": "3600"
+            },
+            {
+              "name": "key",
+              "value": "b1668067e7cac3bcda8ddfe520d12c73"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        832,
+        880
+      ],
+      "id": "4673e16f-7494-4a1e-a3fc-56241abfa6e4",
+      "name": "Save Image to imgbb.com3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v23.0/17841452764010741/media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "facebookGraphApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "={{ $('Save Image to imgbb.com3').item.json.data.url }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.post + ' '+ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.hashtags.join() }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2000,
+        944
+      ],
+      "id": "d8e7274a-0020-47eb-8eec-1762c614e406",
+      "name": "Instagram Image",
+      "alwaysOutputData": false,
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "hMOxqOKXBVi7laHE",
+          "name": "n8n 4 In Sta Account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2640,
+        1792
+      ],
+      "id": "7f324034-a8f7-40c4-b1d8-0226431df5f5",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Parse the social media post results and generate a modern single line HTML table showing platform statuses. For each entry:\n\n-Extract platform name from the JSON key\n-Identify status (Success/Error) based on statusCode or error presence\n-Capture error message if present (or a short success summary when no error exists)\n-Format as responsive HTML table with professional styling\n-Ensure email client compatibility with inline CSS\n-Include error handling for invalid JSON formats or missing expected fields\n-Remove all line breaks and \\n from response so the table is returned as a single HTML line\n-Avoid any preamble or further explanation and remove all ``` and ```html from response. Do not wrap the HTML in any additional tags beyond the table structure itself.\n\n## Implementation Example:\nThis solution uses the parsed results from your workflow to generate:\n<table style=\"border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; margin: 20px 0; background-color: #f9f9f9; border: 1px solid #ddd;\">\n    <thead>\n        <tr style=\"background-color: #007bff; color: #fff;\">\n            <th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Platform</th>\n            <th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Status</th>\n            <th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Details</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr style=\"background-color: #ffffff;\">\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Instagram</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px; color: #dc3545;\">✗ Error</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Unsupported post request. Object with ID '[your-unique-id]' does not exist, cannot be loaded due to missing permissions.</td>\n        </tr>\n        <tr style=\"background-color: #f8f9fa;\">\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">X (Twitter)</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px; color: #dc3545;\">✗ Error</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Unable to sign without access token</td>\n        </tr>\n        <tr style=\"background-color: #ffffff;\">\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Facebook</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px; color: #dc3545;\">✗ Error</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Unsupported post request. Object with ID '[your-unique-id]' does not exist, cannot be loaded due to missing permissions.</td>\n        </tr>\n        <tr style=\"background-color: #f8f9fa;\">\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">LinkedIn</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px; color: #dc3545;\">✗ Error</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Unable to sign without access token</td>\n        </tr>\n    </tbody>\n</table>\n\n\nThis is the social media post results: \n{{ $json.data.toJsonString() }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        96,
+        1392
+      ],
+      "id": "8321fb38-cdb8-4689-8923-f2758d2ea827",
+      "name": "Send Results Email"
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 7
+            }
+          ]
+        }
+      },
+      "id": "5109dd3c-50c1-411d-b7b6-74124106c2c5",
+      "name": "Cron",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        32,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.bleepingcomputer.com/feed/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/rss+xml, application/xml, text/xml, */*"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        368,
+        432
+      ],
+      "id": "34ee5ca6-009e-4c4c-843b-b5fb36dee401",
+      "name": "Worker RSS"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Clean RSS XML so n8n XML node can parse it reliably\nlet xml = $json.data;\n\nxml = xml.replace(/(href|src|data-[a-zA-Z0-9_-]+)=([^\" >]+)/g, '$1=\"$2\"');\nxml = xml.replace(/&(?!(amp|lt|gt|quot|apos|nbsp);)/g, '&amp;');\nxml = xml.replace(/<!\\[CDATA\\[(.*?)\\]\\]>/gs, '$1');\nxml = xml.replace(/<script[\\s\\S]*?<\\/script>/gi, \"\");\nxml = xml.replace(/<[^ >]+\\/>/g, '');\n\nreturn { xml };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        432
+      ],
+      "id": "d6393547-1ad6-4b40-a8fe-8be0d5f26c27",
+      "name": "Clean HTML "
+    },
+    {
+      "parameters": {
+        "dataPropertyName": "xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        32,
+        560
+      ],
+      "id": "c085ee97-dcc8-4f84-9ce5-43de39be4d03",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\n\nfunction getValue(v) {\n  if (Array.isArray(v)) return v[0];\n  if (typeof v === \"object\") return Object.values(v).join(\"\");\n  return v || \"\";\n}\n\nconst items = $json.rss?.channel?.item || [];\n\nfor (const item of items) {\n  const title = getValue(item.title);\n  const link = getValue(item.link);\n  const summary = getValue(item.description);\n\n  out.push({\n    json: { title, link, summary }\n  });\n}\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        560
+      ],
+      "id": "78b437dc-7148-423d-b275-948e176a854b",
+      "name": "Extract Items"
+    },
+    {
+      "parameters": {},
+      "id": "b807e166-3da6-49e3-8aa7-00b3a335892f",
+      "name": "Limit To 1",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        368,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\n\nfor (const item of $input.all()) {\n  const { title, link, summary } = item.json;\n\n  if (!title || !link) continue;\n\n  // Build a payload that mimics the form submission fields\n  out.push({\n    json: {\n      \"Topic\": title,\n      \"Keywords or Hashtags (Optional)\": \"#cybersecurity #familysafety #BESURE\",\n      \"Links\": link,\n      \"OriginalSummary\": summary || \"\"\n    }\n  });\n}\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        560
+      ],
+      "id": "554689ae-eaa3-4252-ae81-beb47f865560",
+      "name": "Build Topic From RSS"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2144,
+        608
+      ],
+      "id": "a2fd25e3-ccae-4612-8a27-827b7e120a12",
+      "name": "gpt-4.1-mini2",
+      "credentials": {
+        "openAiApi": {
+          "id": "hggy4Z8R7Gc4EEfl",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1008,
+        560
+      ],
+      "id": "05403812-34c9-45b3-841f-a225868e4a53",
+      "name": "gpt-4.1-mini1",
+      "credentials": {
+        "openAiApi": {
+          "id": "hggy4Z8R7Gc4EEfl",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        1552
+      ],
+      "id": "b8030b2b-d158-4786-95ce-bdd99e39be87",
+      "name": "gpt-4.1-mini3",
+      "credentials": {
+        "openAiApi": {
+          "id": "hggy4Z8R7Gc4EEfl",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-image",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-image (Nano Banana)"
+        },
+        "prompt": "==Create a single social media illustration for the cybersecurity brand ArkCybr.\n\nSTYLE REQUIREMENTS:\n- Clean, modern flat illustration style with bold shapes and clear visual hierarchy\n- NOT photorealistic. Use stylized vector-style artwork with crisp edges.\n- Color palette: primarily orange #FF8500, dark charcoal #383A3D, white #FFFFFF, and blue #009EFF as accent. Use #FFA64D or #FFCFA4 for subtle gradients only.\n- Composition: centered subject with generous white space. No clutter.\n- Figures: stylized silhouettes or faceless flat-design characters only. No realistic faces.\n- Aspect ratio: square, suitable for social media posting.\n- Overall mood must match the topic described below. Do NOT default to cheerful or generic if the topic is serious.\n\nIMAGE SUBJECT (follow this closely):\n{{ $('Social Media Content Factory').item.json.output.image_prompt }}\n\nBESURE PILLAR: {{ $('Social Media Content Factory').item.json.output.besure_pillar }}\n\nTOPIC CONTEXT: {{ $('Social Media Content Factory').item.json.output.description }}\n\nTEXT IN IMAGE:\n- If possible, include the word \"ArkCybr\" in orange (#FF8500) in a clean area of the image. Keep it simple and legible.\n- If including text would compromise the composition or legibility, omit it entirely. A clean image without text is better than garbled text.\n- Do NOT attempt to render long sentences, taglines, or paragraphs in the image.\n\nGenerate one cohesive illustration that clearly depicts the specific subject described above.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        896
+      ],
+      "id": "0c6ace8f-4734-4802-9108-c698e2cf4159",
+      "name": "Generate an image",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 500,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1pSr3dgAIqSfD4h7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a content creation AI for ArkCybr, a cybersecurity education company that helps families, individuals, and small businesses stay safe online.\nArkCybr's mission: Build an educated, informed population that understands cybersecurity fundamentals. Every piece of content should teach, not just promote. The audience should walk away knowing one concrete thing they can do to be safer.\nThe BESURE Framework is ArkCybr's core teaching model. Every post you create MUST connect to exactly one pillar:\n\nB — Backups: Protect your data by keeping regular, tested backups so you can recover from ransomware, device loss, or accidental deletion.\nE — Encryption: Use encryption to keep your private data unreadable to anyone who shouldn't see it, whether in transit or at rest.\nS — Security: Practice layered security: strong unique passwords, multi-factor authentication, firewalls, endpoint protection, and secure configurations.\nU — Updates: Keep all software, firmware, and operating systems current. Patches fix the vulnerabilities attackers exploit.\nR — Reduce Risk: Minimize your attack surface. Limit permissions, remove unused apps, verify links before clicking, and question unexpected requests.\nE — Educate Yourself & Others: Share what you learn. An informed family member, employee, or neighbor makes the whole community safer.\n\n\nContent Creation Workflow\nFor every request, use these inputs:\n\nTopic: {{ json.Topic ? $json.Topic : (\n('On form submission2').isExecuted ? $('On form submission2').item.json.Topic : '') }}\n\nKeywords: {{ json['Keywords or Hashtags (Optional)'] ? $json['Keywords or Hashtags (Optional)'] : (\n('On form submission2').isExecuted ? ($('On form submission2').item.json['Keywords or Hashtags (Optional)'] ?? '') : '') }}\n\nLink: {{ json.Links ? $json.Links : (\n('On form submission2').isExecuted ? ($('On form submission2').item.json.Links ?? '') : '') }}\n\n\nStep 1 — Analyze the topic. Before writing anything, determine:\n\nWhat is the core subject? (e.g., a criminal sentencing, a new vulnerability, a parenting tip, a product feature)\nWhat is the emotional tone? (e.g., cautionary, celebratory, urgent, educational, empowering)\nWhich BESURE pillar applies? Pick the single best fit.\nWho is the primary audience? Use these rules:\n\nIf the topic mentions clients, small business, SMB, teams, employees, compliance, POS, or inventory → small-business audience\nIf the topic mentions kids, teens, parents, homeschool, students, or families → family audience\nIf both or ambiguous → general audience (content works for both)\n\n\nWhat is the key visual subject? Identify the concrete, specific thing that should appear in an image (e.g., a gavel and handcuffs for a sentencing story, a padlock icon over a phone for encryption, a family reviewing privacy settings together for parental controls). This must match the topic, NOT default to a generic scene.\n\nStep 2 — Write the image_prompt field. This field is consumed directly by DALL-E to generate the post image. It must:\n\nDescribe a specific scene that visually represents the actual topic from Step 1\nMatch the emotional tone identified in Step 1 (do NOT use cheerful family imagery for crime/breach topics)\nInclude concrete visual subjects (objects, settings, actions) rather than abstract concepts\nSpecify a visual style: \"Clean, modern flat illustration\" or \"Realistic digital illustration\" depending on the topic\nInclude the color directive: \"Use ArkCybr brand palette: orange (#FF8500), dark charcoal (#383A3D), white (#FFFFFF), and blue (#009EFF) as accents\"\nState: \"Include the text 'ArkCybr' in orange (#FF8500) and the tagline 'PURE. PROTECTED. INTERNET.' in small text beneath it\"\nState: \"Do not render any human faces in photorealistic detail. Use stylized or silhouetted figures.\"\nBe 2-4 sentences, maximum 400 characters\nNEVER default to \"a family gathered around a computer\" unless the topic is literally about families using computers together\n\nImage tone matching rules:\nTopic typeImage toneExample subjectsCrime / arrest / sentencingSerious, authoritativeGavel, courtroom silhouette, handcuffs, broken chain, scales of justiceData breach / vulnerabilityUrgent, cautionaryCracked shield, warning icon, exposed data streams, red alert indicatorsProduct launch / featureOptimistic, cleanDevice mockups, shield with checkmark, app interfaceEducational tip / how-toFriendly, instructiveStep-by-step icons, checklist, person at device with guide overlayFamily safety / parentingWarm, empoweringParent and child silhouettes reviewing a screen, safety shield over homeSmall business securityProfessional, trustworthyOffice setting, secured network diagram, lock over business storefront\nStep 3 — Write platform posts. Follow the platform-specific rules below.\nStep 4 — Write per-platform image_suggestion fields. These are human-readable descriptions for the approval email (NOT consumed by the image generator). They should briefly describe what the shared image depicts and why it fits the platform's audience. One sentence each.\n\nPlatform-Specific Rules\nLinkedIn\n\nStyle: Professional, insight-driven.\nTone: Business-oriented. Focus on lessons, consequences, or implications the audience can learn from.\nLength: 3–5 sentences. Can use short bullet lists for clarity.\nCTA: Encourage comments, saves, or visits to arkcybr.com. Ask for professional experiences or opinions.\n\nInstagram\n\nStyle: Visual storytelling with creative captions.\nTone: Inspirational, engaging. Use 2-4 emojis naturally placed, not clustered.\nLength: 2–4 sentences.\nLink: Add the provided link before hashtags. If no link provided, use \"Learn more: https://besure.arkcybr.com\"\nCTA: \"Save this for later,\" \"Tag someone who needs this,\" or \"Link in bio for the full story.\"\n\nFacebook\n\nStyle: Friendly, community-focused.\nTone: Relatable, conversational. Highlight what the audience can learn or do.\nLength: 2–4 sentences.\nCTA: Encourage shares and comments with a specific question tied to the topic.\n\nX-Twitter\n\nStyle: Concise, punchy.\nTone: One core idea, maximum impact. Lead with the most surprising or important fact.\nLength: Post text must be under 280 characters including hashtags.\ncharacter_limit: Always set to 280.\nCTA: Drive replies or reposts.\nDo NOT include hashtags inline in the post text. Place all hashtags only in the hashtags array. The posting workflow appends them automatically.\n\nTikTok\n\nStyle: Short-form video direction.\nTone: Fun yet informative. Hook in the first 2 seconds.\nvideo_suggestion: Describe a specific 15–60 second video concept tied to the topic (NOT generic).\nLength: Caption 1–3 short lines.\nCTA: Follow for more, save the video.\n\nThreads\n\nStyle: Conversational, discussion-oriented.\nTone: Casual but informed. End with a question or provocative statement.\nLength: 1–2 short paragraphs.\nCTA: Ask for opinions, experiences, or debate.\n\nYouTube Shorts\n\nStyle: Short-form video direction.\nTone: Authoritative yet accessible.\nvideo_suggestion: Describe a specific under-60-second video concept.\ntitle: Compelling, keyword-rich, under 70 characters.\ndescription: 2-3 sentences summarizing the video content.\nCTA: Subscribe, comment, like.\n\n\nHashtag Rules\nAlways include #BESURE on every platform.\nAudience-based filtering:\n\nSmall-business posts: Use #SmallBusiness, #SmallBusinessSecurity, #Cybersecurity, #SMB, #DigitalSafety. Do NOT use #parenting, #ParentTok, #MomLife.\nFamily posts: Use #parenting, #family, #homeschool, #kidsOnlineSafety. Do NOT use #SmallBusiness, #B2B, #Founder.\nGeneral posts: Use neutral tags: #cybersecurity, #onlinesafety, #TechSolutions, #BESURE. Avoid tags exclusive to one audience.\n\nPer platform:\n\nLinkedIn: 5–8 hashtags, include 1–2 professional niche tags.\nInstagram: 8–12 hashtags, include 3–5 niche/trending tags.\nFacebook: 5–7 hashtags total.\nX-Twitter: 2–4 hashtags max (they count toward character limit).\nTikTok: 5–8 hashtags, include trending platform-specific tags.\nThreads: 3–5 hashtags.\nYouTube Shorts: 5–8 hashtags in description.\n\n\nQuality Checks (apply before outputting)\n\nTopic alignment: Re-read the topic input. Does every post actually discuss this specific topic? If a post could apply to any random cybersecurity topic, rewrite it to be specific.\nImage alignment: Does the image_prompt depict the subject of the topic? If the topic is about a criminal going to jail, the image must NOT show a happy family at a computer.\nBESURE connection: Does the post teach the audience something they can act on, tied to the chosen BESURE pillar?\nNo fluff: Remove sentences like \"In today's digital landscape\" or \"Cybersecurity is more important than ever.\" Start with the specific hook.\nFactual accuracy: Do not invent statistics, case details, or claims not present in the topic input. If the topic provides facts, use them. If not, keep advice general and actionable.\n\nReply with only valid JSON matching the provided schema. No code fences, no explanations, no commentary outside the JSON object.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1104,
+        384
+      ],
+      "id": "26ceaf7d-2492-4638-8771-dc50c6646ea6",
+      "name": "Social Media Content Factory",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"name\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"description\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"besure_pillar\": {\n\t\t\t\"type\": \"string\",\n\t\t\t\"enum\": [\"Backups\", \"Encryption\", \"Security\", \"Updates\", \"Reduce Risk\", \"Educate Yourself & Others\"]\n\t\t},\n\t\t\"image_prompt\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"platform_posts\": {\n\t\t\t\"type\": \"object\",\n\t\t\t\"properties\": {\n\t\t\t\t\"LinkedIn\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"Instagram\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"caption\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"emojis\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"Facebook\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"X-Twitter\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"video_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"character_limit\": {\n\t\t\t\t\t\t\t\"type\": \"integer\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"TikTok\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"video_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"caption\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"Threads\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"text_post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"YouTube_Shorts\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"video_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"title\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"description\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t\"additional_notes\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1296,
+        560
+      ],
+      "id": "5104f893-ca5d-48ee-a623-2ee3ff0ebfd1",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "formTitle": "Social Media Post Creator v3",
+        "formDescription": "Welcome to the ArkCybr AI-Powered Assistant!\n\nThis tool is designed to streamline and enhance our social media content creation process.\n\nSimply provide key inputs like a topic or title, optional Hashtag's or links.  Then, when prompted, you can either upload an optional image or allow our intelligent agent to generate an engaging image along with post descriptions tailored to our audience. \n\nThis assistant saves time while delivering professional-quality content optimized for maximum impact.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Topic",
+              "fieldName": "Topic",
+              "placeholder": "Provide a concise and clear title or main topic for your post (e.g., \"New Product Launch,\" \"Exciting Company Update\"). This helps the AI accurately capture the focus of your content.",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Keywords or Hashtags (Optional)",
+              "fieldName": "Keywords or Hashtags (Optional)",
+              "placeholder": "Include any specific keywords or hashtags you'd like the AI to incorporate into the post. This ensures the content aligns with your branding and campaign objectives."
+            },
+            {
+              "fieldLabel": "Links / URLs (Optional)",
+              "fieldName": "Links",
+              "placeholder": "Provide the URL of any product, service, form, support page, or other resource. This link will be included in the generated post to direct your audience to the relevant content."
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "useWorkflowTimezone": true,
+          "customCss": "/* ============================================\n   ArkCybr Social Media Generator – Base Styles\n   Single theme, ArkCybr brand colors only\n   ============================================ */\n\n/* CSS variables */\n:root {\n  /* Typography */\n  --font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;\n  --font-family-heading: 'Changa', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;\n\n  --font-weight-normal: 300;\n  --font-weight-bold: 600;\n\n  --font-size-body: 13px;\n  --font-size-label: 14px;\n  --font-size-input: 14px;\n  --font-size-header: 22px;\n  --font-size-paragraph: 14px;\n  --font-size-link: 13px;\n  --font-size-error: 12px;\n  --font-size-subheader: 14px;\n\n  /* Border Radii */\n  --border-radius-card: 10px;\n  --border-radius-input: 8px;\n  --border-radius-clear-btn: 50%;\n\n  /* Spacing */\n  --padding-container-top: 32px;\n  --padding-card: 24px;\n  --card-margin-bottom: 18px;\n  --padding-form-input: 12px;\n\n  /* Dimensions */\n  --container-width: 480px;\n  --submit-btn-height: 48px;\n  --checkbox-size: 18px;\n\n  /* Transitions */\n  --transition-fast: 150ms ease-out;\n\n  /* ArkCybr brand palette */\n  --color-ark-orange: #FF8500;  /* primary brand orange */\n  --color-ark-orange-soft: #FFA64D;\n  --color-ark-orange-light: #FFCFA4;\n  --color-ark-orange-deep: #D16800;\n\n  --color-ark-brown-dark: #492300;\n  --color-ark-charcoal: #383A3D;\n  --color-ark-charcoal-soft: #6D7175;\n\n  --color-ark-border-light: #DCDFE2;\n  --color-ark-border-mid: #AEB3B7;\n\n  --color-ark-blue: #009EFF;\n  --color-ark-blue-soft: #57C7FF;\n  --color-ark-blue-deep: #0065C1;\n\n  --color-white: #FFFFFF;\n\n  /* UI colors */\n  --color-background: #F4F6FA;\n  --color-background-accent: radial-gradient(\n    circle at top left,\n    rgba(255, 133, 0, 0.10),\n    rgba(0, 158, 255, 0.10),\n    #F4F6FA\n  );\n\n  --color-card-bg: #FFFFFF;\n  --color-card-border: var(--color-ark-border-light);\n  --color-card-shadow: rgba(56, 58, 61, 0.12);\n\n  --color-text-main: var(--color-ark-charcoal);\n  --color-text-subtle: var(--color-ark-charcoal-soft);\n  --color-link: var(--color-ark-blue-deep);\n\n  --color-input-border: var(--color-ark-border-mid);\n  --color-input-text: var(--color-ark-charcoal);\n  --color-input-placeholder: rgba(99, 115, 139, 0.95);\n  --color-input-focus: var(--color-ark-blue);\n\n  --color-submit-btn-bg: linear-gradient(135deg, var(--color-ark-orange), var(--color-ark-orange-soft));\n  --color-submit-btn-text: #000000; /* black text on orange for contrast [web:4] */\n  --color-submit-btn-bg-hover: linear-gradient(135deg, var(--color-ark-orange-deep), var(--color-ark-orange));\n  --color-submit-btn-bg-active: linear-gradient(135deg, var(--color-ark-orange-deep), #A74D00);\n\n  --color-clear-button-bg: var(--color-ark-border-light);\n\n  --color-error: var(--color-ark-orange-deep);\n  --color-required: var(--color-ark-orange-deep);\n\n  --box-shadow-card: 0 18px 45px 0 var(--color-card-shadow);\n}\n\n/* ====== Global layout ====== */\n\nhtml, body {\n  margin: 0;\n  padding: 0;\n}\n\nbody {\n  font-family: var(--font-family);\n  font-weight: var(--font-weight-normal);\n  font-size: var(--font-size-body);\n  color: var(--color-text-main);\n  background: var(--color-background-accent);\n  -webkit-font-smoothing: antialiased;\n}\n\n/* Center the form nicely on the page */\nbody .n8n-form,\nbody main {\n  display: flex;\n  justify-content: center;\n  padding-top: var(--padding-container-top);\n}\n\n/* ====== Card / container ====== */\n\n.arkcybr-card,\n.n8n-form {\n  background: var(--color-card-bg);\n  border-radius: var(--border-radius-card);\n  border: 1px solid var(--color-card-border);\n  box-shadow: var(--box-shadow-card);\n  padding: var(--padding-card);\n  margin: 0 auto var(--card-margin-bottom);\n  max-width: var(--container-width);\n  box-sizing: border-box;\n}\n\n/* ====== Headings / text ====== */\n\n.arkcybr-heading,\n.n8n-form h1 {\n  font-family: var(--font-family-heading);\n  font-size: var(--font-size-header);\n  font-weight: var(--font-weight-bold);\n  color: var(--color-ark-charcoal);\n  margin-top: 0;\n  margin-bottom: 8px;\n}\n\n.n8n-form p,\n.n8n-form .description {\n  font-size: var(--font-size-paragraph);\n  color: var(--color-text-subtle);\n  margin-top: 0;\n  margin-bottom: 16px;\n}\n\na,\n.n8n-form a {\n  color: var(--color-link);\n  text-decoration: none;\n}\n\na:hover,\n.n8n-form a:hover {\n  text-decoration: underline;\n}\n\n/* ====== Labels / fields ====== */\n\n.n8n-form label {\n  display: block;\n  font-size: var(--font-size-label);\n  font-weight: 500;\n  color: var(--color-text-subtle);\n  margin-bottom: 6px;\n}\n\n.n8n-form .required {\n  color: var(--color-required);\n}\n\n/* Inputs, textareas, selects */\n.n8n-form input,\n.n8n-form textarea,\n.n8n-form select {\n  font-family: var(--font-family);\n  font-size: var(--font-size-input);\n  color: var(--color-input-text);\n  background-color: var(--color-white);\n  border-radius: var(--border-radius-input);\n  border: 1px solid var(--color-input-border);\n  padding: var(--padding-form-input);\n  width: 100%;\n  box-sizing: border-box;\n  outline: none;\n  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);\n}\n\n.n8n-form input::placeholder,\n.n8n-form textarea::placeholder {\n  color: var(--color-input-placeholder);\n}\n\n/* Focus state */\n.n8n-form input:focus,\n.n8n-form textarea:focus,\n.n8n-form select:focus {\n  border-color: var(--color-input-focus);\n  box-shadow: 0 0 0 1px rgba(0,158,255,0.25);\n}\n\n/* Field spacing */\n.n8n-form .form-element,\n.n8n-form .form-group {\n  margin-bottom: 16px;\n}\n\n/* Checkboxes / radios */\n.n8n-form input[type=\"checkbox\"],\n.n8n-form input[type=\"radio\"] {\n  width: var(--checkbox-size);\n  height: var(--checkbox-size);\n  margin-right: 8px;\n}\n\n/* ====== Error text ====== */\n\n.n8n-form .error,\n.n8n-form .validation-error {\n  color: var(--color-error);\n  font-size: var(--font-size-error);\n  margin-top: 4px;\n}\n\n/* ====== Submit button (MAIN THING) ====== */\n\n.arkcybr-submit,\n.n8n-form button[type=\"submit\"],\n.n8n-form .btn-block button[type=\"submit\"] {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: var(--submit-btn-height);\n  padding: 0 24px;\n  margin-top: 8px;\n\n  border-radius: 999px;\n  border: none;\n\n  background: var(--color-submit-btn-bg) !important;\n  color: var(--color-submit-btn-text) !important;\n\n  font-family: var(--font-family);\n  font-size: 15px;\n  font-weight: var(--font-weight-bold);\n  letter-spacing: 0.02em;\n  text-transform: none;\n\n  cursor: pointer;\n  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);\n  transition:\n    background var(--transition-fast),\n    transform var(--transition-fast),\n    box-shadow var(--transition-fast),\n    filter var(--transition-fast);\n}\n\n.arkcybr-submit:hover,\n.n8n-form button[type=\"submit\"]:hover,\n.n8n-form .btn-block button[type=\"submit\"]:hover {\n  background: var(--color-submit-btn-bg-hover) !important;\n  transform: translateY(-1px);\n  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);\n  filter: brightness(1.03);\n}\n\n.arkcybr-submit:active,\n.n8n-form button[type=\"submit\"]:active,\n.n8n-form .btn-block button[type=\"submit\"]:active {\n  background: var(--color-submit-btn-bg-active) !important;\n  transform: translateY(0);\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.20);\n}\n\n/* Disabled state */\n.arkcybr-submit:disabled,\n.n8n-form button[type=\"submit\"]:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n  box-shadow: none;\n}\n\n/* ====== Secondary / clear button (if used) ====== */\n\n.arkcybr-clear,\n.n8n-form .secondary-button {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  height: var(--submit-btn-height);\n  padding: 0 20px;\n  border-radius: 999px;\n  border: none;\n  background: var(--color-clear-button-bg);\n  color: var(--color-text-main);\n  font-family: var(--font-family);\n  font-size: 13px;\n  font-weight: 500;\n  cursor: pointer;\n  margin-top: 8px;\n}\n\n/* ====== Small screens ====== */\n\n@media (max-width: 600px) {\n  body main,\n  body .n8n-form {\n    padding: 16px;\n  }\n\n  .arkcybr-card,\n  .n8n-form {\n    padding: 20px;\n    max-width: 100%;\n  }\n}\n/* BIG, OBVIOUS SUBMIT BUTTON – FINAL FIX */\n\n/* Target every possible n8n submit button */\nbutton[type=\"submit\"],\n.n8n-form button[type=\"submit\"],\n.n8n-form .btn-block button[type=\"submit\"],\n.n8n-form form button[type=\"submit\"] {\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n\n  width: 100% !important;\n  max-width: 260px;\n  margin: 24px auto 8px !important;\n\n  height: 48px !important;\n  padding: 0 24px !important;\n\n  background: linear-gradient(135deg, #FF8500, #FFA64D) !important;\n  color: #000000 !important; /* black on orange is super clear [web:4] */\n  border-radius: 999px !important;\n  border: 1px solid #D16800 !important;\n\n  font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;\n  font-size: 15px !important;\n  font-weight: 600 !important;\n  letter-spacing: 0.02em;\n  text-transform: none;\n\n  cursor: pointer !important;\n  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.20) !important;\n  transition:\n    background 150ms ease-out,\n    transform 150ms ease-out,\n    box-shadow 150ms ease-out;\n}\n\n/* Hover / active states */\nbutton[type=\"submit\"]:hover,\n.n8n-form button[type=\"submit\"]:hover {\n  background: linear-gradient(135deg, #D16800, #FF8500) !important;\n  transform: translateY(-1px);\n  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25) !important;\n}\n\nbutton[type=\"submit\"]:active,\n.n8n-form button[type=\"submit\"]:active {\n  transform: translateY(0);\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22) !important;\n}\n"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        368,
+        176
+      ],
+      "id": "65a3daa4-0f7c-4102-a416-7b4ee1efe43f",
+      "name": "On form submission2",
+      "webhookId": "884fdb42-7bfb-4005-837b-87afecea67ab",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2418025-b871-4180-a022-12c897648db6",
+              "name": "runSource",
+              "value": "cron",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        432
+      ],
+      "id": "8fefbd67-b67a-4d30-a774-336ad8d6dc70",
+      "name": "Set Source (cron)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2418025-b871-4180-a022-12c897648db6",
+              "name": "runSource",
+              "value": "form",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        176
+      ],
+      "id": "854b65ee-23bb-4f1a-ac50-09504a4a10ed",
+      "name": "Set Source (form)"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        864,
+        384
+      ],
+      "id": "ed11b97c-60f6-4219-8f05-8c8f45fdcb65",
+      "name": "Merge by Position"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6a1a94c4-0188-425d-993b-992a0aeba6e3",
+              "leftValue": true,
+              "rightValue": "={{ $('Set Source (cron)').isExecuted }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -272,
+        912
+      ],
+      "id": "ee060170-f5af-49f4-834d-ad63c755d592",
+      "name": "Is auto run?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a4683a83-25ce-4625-9c7c-75519fca64ff",
+              "leftValue": "={{ $json[\"Generate Custom Image using AI Image Generator\"] }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -16,
+        1024
+      ],
+      "id": "05c851d4-9153-48d0-8329-9831d92d9acd",
+      "name": "Use AI?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/media/upload",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twitterOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "media",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "media_category",
+              "value": "tweet_image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1552,
+        1376
+      ],
+      "id": "71540be7-2232-4de0-a4ae-35e0518e5312",
+      "name": "Upload Image to X",
+      "alwaysOutputData": false,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "PxHTKEmJFCeJSnmT",
+          "name": "X account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# 👍 AI or Manual Run?",
+        "height": 424,
+        "width": 480,
+        "color": 4
+      },
+      "id": "739c5af2-8147-400b-a747-eb6899908b21",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -352,
+        816
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# 👨 Manual Input for Social Media Posts \n### 💡 Begin with a desired topic in mind\n- Enter your topic in the first field\n- Enter any Hashtags you'd like in your post\n- Enter any links or references",
+        "height": 200,
+        "width": 712
+      },
+      "id": "b92a2c3e-3542-4d23-af75-9c2cd48a8400",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Welcome to the future of your Social Media Posts!\n\n### There are two ways to post\n- Via Cron\n- Via Form\n\n## Cron Posting\n### To post via Cron, set your desired interval by selecting:\n- Minute\n- Hour\n- Day\n- Week\n- Month\n### Select your desired time\n- e.g. Hr: 7\n- e.g. Min: 30",
+        "height": 584,
+        "width": 296
+      },
+      "id": "5bc59db8-bea9-48c1-8920-2185de7967b7",
+      "name": "Sticky Note18",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -352,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload Image (optional)",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".jpg, .png, .jpeg, .mp4"
+            },
+            {
+              "fieldLabel": "Generate Custom Image using AI Image Generator",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "formTitle": "Generate Post Image",
+          "buttonLabel": "Submit"
+        }
+      },
+      "id": "39d8a872-4a9d-4d1c-8bc8-757e058e71c8",
+      "name": "Image Choice",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        -272,
+        1088
+      ],
+      "webhookId": "a3b9fc25-1480-4a95-9ae6-4b0dea334967",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6a1a94c4-0188-425d-993b-992a0aeba6e3",
+              "leftValue": true,
+              "rightValue": "={{ $json.data.approved }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1392,
+        976
+      ],
+      "id": "be1eb5f5-db46-4dd7-88ef-5be63ab906ba",
+      "name": "Is approved?"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        832,
+        1104
+      ],
+      "id": "720f7d4e-bb92-4fb6-810e-0f112ce12481",
+      "name": "Merge for approval"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1792,
+        944
+      ],
+      "id": "3010e5b1-1acf-4b98-8c51-cf49e983b16b",
+      "name": "Merge for Instagram"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1312,
+        1600
+      ],
+      "id": "1c2516c9-30f3-4a5e-9816-ace6bc1308a8",
+      "name": "Merge for X/FB/LI"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reattach binary data from whichever path was taken\nconst isAutoRun = $('Is auto run?').item.json.data?.approved !== undefined \n  ? false  // Manual run went through approval\n  : true;  // Auto run (cron)\n\nlet binaryData;\n\nif (isAutoRun) {\n  // Cron path: always uses AI-generated image\n  binaryData = $('Generate an image').item.binary;\n} else {\n  // Manual form path: check user's choice\n  const aiGenerated = $('Use AI?').item.json['Generate Custom Image using AI Image Generator'] === 'Yes';\n  \n  if (aiGenerated) {\n    binaryData = $('Generate an image').item.binary;\n  } else {\n    binaryData = $('Rename Binary File').item.binary;\n  }\n}\n\n// Get the current item (approval data)\nconst currentItem = $input.item;\n\n// Attach the binary data to the current item\nreturn {\n  json: currentItem.json,\n  binary: binaryData\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        1040
+      ],
+      "id": "46fc2654-0ec8-4c1e-89ce-0550e035c5b8",
+      "name": "Reattach Binary Data"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        1072
+      ],
+      "id": "2833d12d-d749-4457-85d4-ebdbcb99852d",
+      "name": "Wait",
+      "webhookId": "a2c441fb-49f7-47c1-b934-6943003392b3"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "toRecipients": "sean@arkcybr.com",
+        "subject": "=🔥NEW APPROVAL🔥{{ $('Social Media Content Factory').item.json.output.name }} - {{ $('Social Media Content Factory').item.json.output.description }}",
+        "message": "={{ `\n<div style=\"max-width:640px;margin:0 auto;font-family:Arial,sans-serif;\">\n\n  <!-- Image preview block -->\n  ${ $json.data?.medium?.url\n      ? `<div style=\"margin-bottom:20px;text-align:center;\">\n           <p style=\"font-size:14px;color:#555;margin:0 0 8px;\">\n             Proposed image for this post:\n           </p>\n           <a href=\"${$json.data.medium.url}\" target=\"_blank\" style=\"text-decoration:none;\">\n             <img src=\"${$json.data.medium.url}\"\n                  alt=\"Proposed social image\"\n                  style=\"max-width:100%;border-radius:8px;display:block;margin:0 auto;\">\n           </a>\n         </div>`\n      : ''\n    }\n\n  <!-- Existing HTML from Prepare Content Review Email -->\n  ${ $json.output || '' }\n\n</div>\n` }}\n{{ $('Prepare Content Review Email').item.json.output }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 60,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        992
+      ],
+      "id": "ccf5701c-79b4-4d9f-9d13-89ac298c0463",
+      "name": "Send message and wait for response",
+      "webhookId": "c4cb6953-c747-47c0-9d9d-4ba919078b61",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "neDLZh8bOUJvPdsr",
+          "name": "Microsoft Outlook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toRecipients": "sean@arkcybr.com",
+        "subject": "🔥RESULTS🔥 Social Media Factory",
+        "bodyContent": "={{ $json.output }}",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        448,
+        1424
+      ],
+      "id": "b3a5ed61-e616-450b-b8dc-ba0d6aa42681",
+      "name": "Send results",
+      "webhookId": "51089fae-c706-4a81-93b9-edc56373c0c8",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "neDLZh8bOUJvPdsr",
+          "name": "Microsoft Outlook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiration",
+              "value": "3600"
+            },
+            {
+              "name": "key",
+              "value": "b1668067e7cac3bcda8ddfe520d12c73"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -560,
+        752
+      ],
+      "id": "dd714da2-9b10-4b02-8323-92aaa7e8a8aa",
+      "name": "Save Image to imgbb.com"
+    }
+  ],
+  "connections": {
+    "Google Gemini LLM": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Instragram Post": {
+      "main": [
+        [
+          {
+            "node": "Instagram Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Post": {
+      "main": [
+        [
+          {
+            "node": "X Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Post": {
+      "main": [
+        [
+          {
+            "node": "Facebook Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Post": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Prepare Results Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Results Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4o-mini2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Prepare Results Message",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram Result": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Result": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Facebook Result": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "LinkedIn Result": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Prepare Results Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Social Media Content Factory",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Binary File": {
+      "main": [
+        [
+          {
+            "node": "Save Image to imgbb.com3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge for approval",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Prepare Content Review Email": {
+      "main": [
+        [
+          {
+            "node": "Is auto run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Image to imgbb.com3": {
+      "main": [
+        [
+          {
+            "node": "Merge for approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram Image": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Results Email": {
+      "main": [
+        [
+          {
+            "node": "Send results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron": {
+      "main": [
+        [
+          {
+            "node": "Set Source (cron)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Worker RSS": {
+      "main": [
+        [
+          {
+            "node": "Clean HTML ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean HTML ": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Extract Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Items": {
+      "main": [
+        [
+          {
+            "node": "Limit To 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit To 1": {
+      "main": [
+        [
+          {
+            "node": "Build Topic From RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Topic From RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge by Position",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "gpt-4.1-mini2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Prepare Content Review Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4.1-mini1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Social Media Content Factory",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4.1-mini3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Send Results Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Merge for approval",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Save Image to imgbb.com3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Social Media Content Factory": {
+      "main": [
+        [
+          {
+            "node": "Prepare Content Review Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Social Media Content Factory",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission2": {
+      "main": [
+        [
+          {
+            "node": "Set Source (form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Source (cron)": {
+      "main": [
+        [
+          {
+            "node": "Worker RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Source (form)": {
+      "main": [
+        [
+          {
+            "node": "Merge by Position",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge by Position": {
+      "main": [
+        [
+          {
+            "node": "Social Media Content Factory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is auto run?": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Image Choice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use AI?": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rename Binary File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to X": {
+      "main": [
+        [
+          {
+            "node": "X Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Choice": {
+      "main": [
+        [
+          {
+            "node": "Use AI?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is approved?": {
+      "main": [
+        [
+          {
+            "node": "Reattach Binary Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge for Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Merge for approval": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge for Instagram": {
+      "main": [
+        [
+          {
+            "node": "Instagram Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge for X/FB/LI": {
+      "main": [
+        [
+          {
+            "node": "Facebook Post",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LinkedIn Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reattach Binary Data": {
+      "main": [
+        [
+          {
+            "node": "Merge for X/FB/LI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload Image to X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Instragram Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Is approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Cron": [
+      {}
+    ]
+  },
+  "meta": {
+    "instanceId": "cb0d5ddb0e5ad9748125e5c4622d35447f77a5c4070a87ae50fab7498f27fb33"
+  }
+}
